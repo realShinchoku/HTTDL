@@ -59,28 +59,14 @@ $(function () {
     });
 
     if (isPos) {
-      const geolocation = new ol.Geolocation({
-        tracking: true,
-        trackingOptions: {
-          enableHighAccuracy: true,
-        },
-        projection: viewMap.getProjection(),
+      const positionFeature = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.transform([mapLng, mapLat], 'EPSG:4326',     
+        'EPSG:3857')),
       });
-      geolocation.on("error", function (error) {
-        alert("Vui lòng gps");
-      });
-      const accuracyFeature = new ol.Feature({
-        geometry:geolocation.getAccuracyGeometry()
-      });
-      geolocation.on("change:accuracyGeometry", function () {
-        accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
-      });
-
-      const positionFeature = new ol.Feature();
       positionFeature.setStyle(
         new ol.style.Style({
           image: new ol.style.Circle({
-            radius: 5,
+            radius: 6,
             fill: new ol.style.Fill({
               color: "#3399CC",
             }),
@@ -92,25 +78,57 @@ $(function () {
         })
       );
 
-      geolocation.on("change:position", function () {
-        const coordinates = geolocation.getPosition();
-        positionFeature.setGeometry(
-          coordinates ? new ol.geom.Point(coordinates) : null
-        );
-      });
       new ol.layer.Vector({
         map: map,
         source: new ol.source.Vector({
-          features: [accuracyFeature, positionFeature],
+          features: [positionFeature],
         }),
       });
     }
-    map.render();
-  }
 
+    map.on('singleclick', function (evt) {
+      var zoom = map.getView().getZoom();
+      var lonlat = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+      var lon = lonlat[0];
+      var lat = lonlat[1];
+      var myPoint = 'POINT(' + lon + ' ' + lat + ')';
+
+      $.ajax({
+          type: "POST",
+          url: "api.php",
+          //dataType: 'json',
+          data: {function: 'listAll', point: myPoint},
+          success : function (result, status, error) {
+              console.log(result);
+          },
+          error: function (req, status, error) {
+              alert(req + " " + status + " " + error);
+          }
+      });
+  });
+  }
+  
   /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
 });
+
+function createJsonObj(result) {
+  return {
+    type: "FeatureCollection",
+    crs: {
+      type: "name",
+      properties: {
+        name: "EPSG:4326",
+      },
+    },
+    features: [
+      {
+        type: "Feature",
+        geometry: result,
+      },
+    ],
+  };
+}
 
 function filterFunction() {
   var input, filter, ul, li, a, i;
