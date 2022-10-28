@@ -9,13 +9,15 @@ if (isset($_POST['function'])) {
         $paPoint = $_POST['point'];
     if(isset($_POST['distance']))
         $distance = $_POST['distance']*= 0.0005;
+    if(isset($_POST['keyword']))
+        $keyword = strtolower($_POST['keyword']);
     $function = $_POST['function'];
 
     $aResult = "null";
     if ($function == 'getSingle')
         $aResult = getSingle($paPDO, $paPoint, $distance);
     else if($function == 'listAll')
-        $aResult = listAll($paPDO, $paPoint);
+        $aResult = listAll($paPDO, $paPoint, $keyword);
     else if($function == 'add')
         $aResult = add($paPDO, $_POST['item']);
     else if($function == 'edit')
@@ -85,9 +87,9 @@ function getSingle($pdo,$point, $distance)
     return 'null';
 }
 
-function listAll($pdo,$point){
+function listAll($pdo,$point,$keyword){
     global $SRID;
-    $mySQLStr = "select * from loc order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom);";
+    $mySQLStr = "select * from loc WHERE lower(name) like '%$keyword%' or lower(addr like) '%$keyword%' order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom);";
     $result = query($pdo, $mySQLStr);
     if ($result != null) {
         return json_encode($result);
