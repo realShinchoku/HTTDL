@@ -5,15 +5,25 @@ use function PHPSTORM_META\type;
 $SRID = '4326';
 if (isset($_POST['function'])) {
     $paPDO = initDB();
-
-    $paPoint = $_POST['point'];
+    if(isset($_POST['point']))
+        $paPoint = $_POST['point'];
+    if(isset($_POST['distance']))
+        $distance = $_POST['distance']*= 0.0005;
     $function = $_POST['function'];
 
     $aResult = "null";
     if ($function == 'getSingle')
-        $aResult = getSingle($paPDO, $paPoint, $_POST['distance']);
+        $aResult = getSingle($paPDO, $paPoint, $distance);
     else if($function == 'listAll')
         $aResult = listAll($paPDO, $paPoint);
+    else if($function == 'add')
+        $aResult = add($paPDO, $_POST['item']);
+    else if($function == 'edit')
+        $aResult = edit($paPDO, $_POST['item']);
+    else if($function == 'delete')
+        $aResult = delete($paPDO, $paPoint,$distance);
+    else if($function == 'isInHN')
+        $aResult = isInHN($paPDO, $paPoint);
     echo $aResult;
 
     closeDB($paPDO);
@@ -67,7 +77,6 @@ function isInHN($pdo, $point)
 function getSingle($pdo,$point, $distance)
 {
     global $SRID;
-    $distance *= 0.0005;
     $mySQLStr = "select * from loc where st_contains(ST_Buffer(geom, $distance), ST_GeometryFromText('$point', $SRID));";
     $result = query($pdo, $mySQLStr);
     if ($result != null) {
@@ -84,4 +93,37 @@ function listAll($pdo,$point){
         return json_encode($result);
     }
     return 'null';
+}
+
+function add($pdo, $item){
+    $mySQLStr = "INSERT INTO loc(\"name\",addr,device_num,min_price,max_price,opening_hour,phone_num,url,geom) 
+                 VALUES ('".$item['name']."', '".$item['addr']."', ".$item['device_num'].", ".$item['min_price'].", ".$item['max_price'].", '".$item['opening_hour']."', '".$item['phone_num']."', '".$item['url']."', '".$item['geom']."');";
+    $result = query($pdo, $mySQLStr);
+    if ($result) {
+        return true;
+    }
+    return false;
+}
+
+function edit($pdo, $item){
+    $mySQLStr = "UPDATE loc SET name = '".$item['name']."', addr = '".$item['addr']."', device_num = ".$item['device_num'].", min_price = ".$item['min_price'].", max_price = ".$item['max_price'].", phone_num = '".$item['phone_num']."', url = '".$item['url']."', opening_hour = '".$item['opening_hour']."'
+                 WHERE id = ".$item['id'].";";
+    $result = query($pdo, $mySQLStr);
+    if ($result) {
+        return true;
+    }
+    return false;
+}
+
+function delete($pdo, $point, $distance){
+    $item = getSingle($pdo,$point,$distance);
+    if($item = 'null')
+        return false;
+    $item = json_decode($item);
+    $mySQLStr = "DELETE FROM loc WHERE id = ".$item['id'].";";
+    $result = query($pdo, $mySQLStr);
+    if ($result) {
+        return true;
+    }
+    return false;
 }

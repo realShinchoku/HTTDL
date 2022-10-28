@@ -86,20 +86,24 @@ $(function () {
       });
     }
 
-    map.on('singleclick', function (evt) {
+    map.on('click', function (evt) {
       var zoom = map.getView().getZoom();
       var lonlat = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
       var lon = lonlat[0];
       var lat = lonlat[1];
       var myPoint = 'POINT(' + lon + ' ' + lat + ')';
-
+      var item = {
+        name: 'abc',
+        geom : myPoint
+      }
       $.ajax({
           type: "POST",
           url: "api.php",
           //dataType: 'json',
-          data: {function: 'listAll', point: myPoint},
+          data: {function: 'add', item: item, distance: zoom},
           success : function (result, status, error) {
               console.log(result);
+              layer_ic.getSource().changed();
           },
           error: function (req, status, error) {
               alert(req + " " + status + " " + error);
