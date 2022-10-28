@@ -61,7 +61,7 @@ function isInHN($pdo, $point)
     if ($result != null) {
         return $result[0]['res'];
     }
-    return null;
+    return false;
 }
 
 function getSingle($pdo,$point, $distance)
