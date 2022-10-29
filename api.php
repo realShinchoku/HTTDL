@@ -101,7 +101,7 @@ function listAll($pdo,$point,$keyword){
 
 function add($pdo, $item){
     $mySQLStr = "INSERT INTO loc(\"name\",addr,device_num,min_price,max_price,opening_hour,phone_num,url,geom) 
-                 VALUES ('".$item['name']."', '".$item['addr']."', ".$item['device_num'].", ".$item['min_price'].", ".$item['max_price'].", '".$item['opening_hour']."', '".$item['phone_num']."', '".$item['url']."', '".$item['geom']."');";
+                 VALUES ('".$item['name']."', '".$item['addr']."', '".$item['device_num']."', '".$item['min_price']."', '".$item['max_price']."', '".$item['opening_hour']."', '".$item['phone_num']."', '".$item['url']."', '".$item['geom']."');";
     $result = query($pdo, $mySQLStr);
     if ($result) {
         return true;
@@ -110,7 +110,7 @@ function add($pdo, $item){
 }
 
 function edit($pdo, $item){
-    $mySQLStr = "UPDATE loc SET name = '".$item['name']."', addr = '".$item['addr']."', device_num = ".$item['device_num'].", min_price = ".$item['min_price'].", max_price = ".$item['max_price'].", phone_num = '".$item['phone_num']."', url = '".$item['url']."', opening_hour = '".$item['opening_hour']."'
+    $mySQLStr = "UPDATE loc SET name = '".$item['name']."', addr = '".$item['addr']."', device_num = '".$item['device_num']."', min_price = '".$item['min_price']."', max_price = '".$item['max_price']."', phone_num = '".$item['phone_num']."', url = '".$item['url']."', opening_hour = '".$item['opening_hour']."'
                  WHERE id = ".$item['id'].";";
     $result = query($pdo, $mySQLStr);
     if ($result) {

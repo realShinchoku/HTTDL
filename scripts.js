@@ -8,7 +8,7 @@ $(function () {
   var mapDefaultZoom = 12;
   const toastSuccess = new bootstrap.Toast(document.getElementById('success'))
   const toastError = new bootstrap.Toast(document.getElementById('error'))
-  toggleEditable(false);
+  toggleEditable(true);
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -114,18 +114,24 @@ $(function () {
         }).then(res => {
           if((api == 'edit' && res)){
             item = res;
+            toggleEditable(false);
             setItem(res);
             openAside();
           }
           else if (api == 'add' && !res){
             item = {}
+            toggleEditable(false);
+            setItem(item);
             item.geom = point;
             openAside();
           }
           else if(api == 'delete' && res)
             callAPI(api, point, "", zoom, res).then(res => {
-              res ? toastSuccess.show() : toastError.show();
+              if(res){
+              toastSuccess.show()
               layer_ic.getSource().changed();
+              }
+              toastError.show();
             });
           else
             closeAside();
@@ -175,9 +181,9 @@ $(function () {
     $(this).addClass("selected");
     api = $(this).data("api");
     if (api === "add" || api === "edit") {
-      toggleEditable(true);
+      toggleEditable(false);
     }
-    toggleEditable(false);
+    toggleEditable(true);
   });
 
   $(".exit-btn").click(function (e) {
@@ -193,6 +199,8 @@ $(function () {
     $(".exit-btn").hide();
     $(".info_location").hide();
     item = {};
+    setItem(item);
+    toggleEditable(true);
   }
 
   function setItem(item) {
@@ -217,16 +225,16 @@ $(function () {
     item.device_num = $("#device-num").val();
     return item;
   }
-  function toggleEditable(isEdited) {
-    $("#name").prop("readonly", isEdited);
-    $("#addr").prop("readonly", isEdited);
-    $("#opening-hour").prop("readonly", isEdited);
-    $("#url").prop("readonly", isEdited);
-    $("#phone-num").prop("readonly", isEdited);
-    $("#min-price").prop("readonly", isEdited);
-    $("#max-price").prop("readonly", isEdited);
-    $("#device-num").prop("readonly", isEdited);
-    if(isEdited){
+  function toggleEditable(isEditable) {
+    $("#name").prop("readonly", isEditable);
+    $("#addr").prop("readonly", isEditable);
+    $("#opening-hour").prop("readonly", isEditable);
+    $("#url").prop("readonly", isEditable);
+    $("#phone-num").prop("readonly", isEditable);
+    $("#min-price").prop("readonly", isEditable);
+    $("#max-price").prop("readonly", isEditable);
+    $("#device-num").prop("readonly", isEditable);
+    if(!isEditable){
       $('#save').show();
       $('#cancel').show();
     }
