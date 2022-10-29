@@ -98,7 +98,7 @@
     width: 24px;
 }
 
-.info_location{
+.aside{
     width: 15vw;
     z-index: 1;
     display: none;
@@ -135,7 +135,7 @@
     font-size: smaller;
 }
 
-.l_info_location{
+.l_aside{
     content: '';
     width: 307px;
     height: 2px;

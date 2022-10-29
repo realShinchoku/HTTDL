@@ -176,7 +176,7 @@ $(function () {
 
   $(".fe_rt").click(function (e) {
     $(".exit-btn").hide();
-    $(".info_location").hide();
+    $(".aside").hide();
     $(".fe_rt").removeClass("selected");
     $(this).addClass("selected");
     api = $(this).data("api");
@@ -192,12 +192,12 @@ $(function () {
 
   function openAside() {
     $(".exit-btn").show();
-    $(".info_location").show();
+    $(".aside").show();
   }
   function closeAside() {
     $("#deafault").click();
     $(".exit-btn").hide();
-    $(".info_location").hide();
+    $(".aside").hide();
     item = {};
     setItem(item);
     toggleEditable(true);
