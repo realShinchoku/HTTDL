@@ -81,7 +81,7 @@
   </div> -->
   <div class="info_location">
     <div class="name_location">
-      <h1>Penta Gaming House</h1>
+      <h1 class="col-12"><input readonly class="col-12" id="name" type="text" value="" placeholder="Tên quán"></input></h1>
       <p class="loaihinh">
         <span>Nhà cung cấp dịch vụ Internet</span>
       </p>
@@ -91,33 +91,60 @@
     </div>
     <div class="info_more">
       <div class="abc">
-        <div class="info_pd vt_dc">
+        <div class="info_pd">
           <i class="fa-solid fa-location-dot"></i>
-          <input type="text" value=""
-            placeholder="139 Đ. Cầu Giấy, Quan Hoa, Cầu Giấy, Hà Nội 100000, Việt Nam"></input>
+          <input readonly id="addr" type="text" value="" placeholder="Địa chỉ"></input>
         </div>
       </div>
-      <div class="info_pd time">
+      <div class="info_pd">
         <i class="fa-solid fa-clock"></i>
-        <input type="text" value="" placeholder="Thời gian mở cửa"></input>
+        <input readonly id="opening-hour" type="text" value="" placeholder="Thời gian mở cửa"></input>
       </div>
-      <div class="info_pd web">
+      <div class="info_pd">
         <i class="fa-solid fa-earth-americas"></i>
-        <input type="text" value="" placeholder="Địa chỉ trang Web"></input>
+        <input readonly id="url" type="text" value="" placeholder="Địa chỉ trang Web"></input>
       </div>
-      <div class="info_pd phone">
+      <div class="info_pd">
         <i class="fa-solid fa-phone"></i>
-        <input type="number" value="" placeholder="09454795476"></input>
+        <input readonly id="phone-num" type="number" value="" placeholder="Số điện thoại"></input>
       </div>
       <div class="info_pd price">
         <i class="fa-solid fa-coins"></i>
-        <input type="number" value="" placeholder="10.000"></input>
+        <input readonly id="min-price" type="number" value="" placeholder="$$$$"></input>
         đ-
-        <input class="m-0" type="number" value="" placeholder="100.000"></input>đ
+        <input readonly id="max-price" class="m-0" type="number" value="" placeholder="$$$$$"></input>đ
+      </div>
+      <div class="info_pd">
+        <i class="fa-solid fa-desktop"></i>
+        <input readonly id="device-num" type="number" value="" placeholder="Số lượng máy"></input>
+      </div>
+    </div>
+    <div class="btn-s-d">
+      <div class="btn-d">
+          <button id="cancel" class="btn btn-cancel"><span>Hủy</span></button>
+      </div>
+      <div class="btn-s">
+          <button id="save" class="btn btn-addnew"><span>Lưu</span></button>
+      </div>
+  </div>
+  </div>
+  <div id="map"></div>
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="success" class="toast bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <i class="fa-solid fa-circle-check"></i>
+        <strong class="me-auto">Thành công</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+    <div id="eror" class="toast bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <strong class="me-auto">Lỗi</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
     </div>
   </div>
-  <div id="map"></div>
   <script src="scripts.js"></script>
 </body>
 

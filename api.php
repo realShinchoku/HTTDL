@@ -23,7 +23,7 @@ if (isset($_POST['function'])) {
     else if($function == 'edit')
         $aResult = edit($paPDO, $_POST['item']);
     else if($function == 'delete')
-        $aResult = delete($paPDO, $paPoint,$distance);
+        $aResult = delete($paPDO, $_POST['item']);
     else if($function == 'isInHN')
         $aResult = isInHN($paPDO, $paPoint);
     else if($function == 'getByID')
@@ -119,11 +119,7 @@ function edit($pdo, $item){
     return false;
 }
 
-function delete($pdo, $point, $distance){
-    $item = getSingle($pdo,$point,$distance);
-    if($item = 'null')
-        return false;
-    $item = json_decode($item);
+function delete($pdo, $item){
     $mySQLStr = "DELETE FROM loc WHERE id = ".$item['id'].";";
     $result = query($pdo, $mySQLStr);
     if ($result) {

@@ -101,7 +101,7 @@
 .info_location{
     width: 15vw;
     z-index: 1;
-    /* display: none; */
+    display: none;
     /* display: table-caption; */
     box-shadow: 0 1px 2px rgb(60 64 67 / 30%), 0 1px 3px 1px rgb(60 64 67 / 15%);
     position: absolute;
@@ -163,7 +163,7 @@
     display: flex;
 }
 .price input{
-    width: 20%;
+    width: 25%;
 }
 .info_pd:hover{
     cursor: pointer;
@@ -179,6 +179,9 @@
 }
 .login img:hover{
     cursor: pointer;
+}
+#name{
+    border: none;
 }
 #map{
     width: 100vw;
@@ -197,6 +200,69 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
+input:focus{
+    outline: none;
+}
 .selected {
     background-color: rgb(200 200 200) !important;
+}
+
+.btn-s-d{
+    
+	display: flex;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 30px;
+}
+
+.btn-s-d button{
+    font-size: 19px;
+    padding: 7px 15px;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 3px;
+    margin-left: 20px;
+    box-shadow: 0 1px 2px rgb(60 64 67 / 30%), 0 1px 3px 1px rgb(60 64 67 / 15%);
+}
+
+.btn-s-d span{
+    padding: 5px;
+    font-size: medium;
+}
+.btn-s-d button:hover{
+    cursor: pointer;
+}
+/*BTN ADDNEW*/
+.btn-addnew {
+    border: 1px #0077df solid;
+    background: linear-gradient(to right, #0077df, #0077df);
+    background-repeat: no-repeat;
+    background-size: 0 100%;
+    transition: background-size 0.5s 0s;
+    border-radius: 0 !important;
+    color: #0077df;
+}
+
+.btn-addnew:hover {
+    background-size: 100% 100%;
+    color: white;
+}
+
+/*BTN CANCEL*/
+.btn-cancel {
+    border: 1px red solid;
+    background: linear-gradient(to right, red, red);
+    background-repeat: no-repeat;
+    background-size: 0 100%;
+    transition: background-size 0.5s 0s;
+    border-radius: 0 !important;
+    color: red;
+}
+
+.btn-cancel:hover {
+    background-size: 100% 100%;
+    color: white;
 }

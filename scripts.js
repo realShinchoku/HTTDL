@@ -1,10 +1,14 @@
 $(function () {
-  var api = 'getSingle';
+  var api = "getSingle";
+  var item = {};
   var format = "image/png";
   var map;
   var mapLat = 21.006423;
   var mapLng = 105.841394;
   var mapDefaultZoom = 12;
+  const toastSuccess = new bootstrap.Toast(document.getElementById('success'))
+  const toastError = new bootstrap.Toast(document.getElementById('error'))
+  toggleEditable(false);
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -92,13 +96,54 @@ $(function () {
       var zoom = map.getView().getZoom();
       var coord = ol.proj.transform(evt.coordinate, "EPSG:3857", "EPSG:4326");
       var point = "POINT(" + coord[0] + " " + coord[1] + ")";
-      var item = {
-        name: "abc",
-        geom: point,
-      };
-
-      callAPI(api,point,'',zoom,item).then((res) => {console.log(res); layer_ic.getSource().changed();});
+      if (api == "getSingle") {
+        callAPI(api, point, "", zoom, item).then((res) => {
+          if(res){
+            setItem(res);
+            openAside();
+          }
+          else
+          closeAside();
+        });
+      } else {
+        callAPI('isInHN', point, "", zoom, item).then(res => {
+          if(res){
+            return callAPI('getSingle', point, "", zoom, item);
+          }
+          closeAside();
+        }).then(res => {
+          if((api == 'edit' && res)){
+            item = res;
+            setItem(res);
+            openAside();
+          }
+          else if (api == 'add' && !res){
+            item = {}
+            item.geom = point;
+            openAside();
+          }
+          else if(api == 'delete' && res)
+            callAPI(api, point, "", zoom, res).then(res => {
+              res ? toastSuccess.show() : toastError.show();
+              layer_ic.getSource().changed();
+            });
+          else
+            closeAside();
+        })
+      }
+      layer_ic.getSource().changed();
     });
+
+    $('#save').click(function () { 
+        item = getItem();
+        callAPI(api, null, "", 0, item).then((res) => {
+          res ? toastSuccess.show() : toastError.show();
+          layer_ic.getSource().changed();
+        });
+    });
+    $('#cancel').click(() => {
+      closeAside();
+    })
 
     function callAPI(api, point, keyword, distance, item) {
       return new Promise((resolve, reject) => {
@@ -113,7 +158,7 @@ $(function () {
             item: item,
           },
           success: function (result) {
-            resolve(result);
+            resolve(JSON.parse(result));
           },
           error: function (req, status, error) {
             reject(req + " " + status + " " + error);
@@ -123,26 +168,72 @@ $(function () {
     }
   }
 
-  $('.fe_rt').click(function (e) { 
-    $('.fe_rt').removeClass('selected');
-    $(this).addClass('selected');
-    api = $(this).data('api');
-    if(api === 'add' || api === 'edit')
-      openAside();
+  $(".fe_rt").click(function (e) {
+    $(".exit-btn").hide();
+    $(".info_location").hide();
+    $(".fe_rt").removeClass("selected");
+    $(this).addClass("selected");
+    api = $(this).data("api");
+    if (api === "add" || api === "edit") {
+      toggleEditable(true);
+    }
+    toggleEditable(false);
   });
 
-  $('.exit-btn').click(function (e) { 
+  $(".exit-btn").click(function (e) {
     closeAside();
   });
 
-  function openAside(){
-    $('.exit-btn').show();
-    $('.info_location').show();
+  function openAside() {
+    $(".exit-btn").show();
+    $(".info_location").show();
   }
-  function closeAside(){
-    $('#deafault').click();
-    $('.exit-btn').hide();
-    $('.info_location').hide();
+  function closeAside() {
+    $("#deafault").click();
+    $(".exit-btn").hide();
+    $(".info_location").hide();
+    item = {};
+  }
+
+  function setItem(item) {
+    $("#name").val(item.name);
+    $("#addr").val(item.addr);
+    $("#opening-hour").val(item.opening_hour);
+    $("#url").val(item.url);
+    $("#phone-num").val(item.phone_num);
+    $("#min-price").val(item.min_price);
+    $("#max-price").val(item.max_price);
+    $("#device-num").val(item.device_num);
+  }
+
+  function getItem() {
+    item.name = $("#name").val();
+    item.addr = $("#addr").val();
+    item.opening_hour = $("#opening-hour").val();
+    item.url = $("#url").val();
+    item.phone_num = $("#phone-num").val();
+    item.min_price = $("#min-price").val();
+    item.max_price = $("#max-price").val();
+    item.device_num = $("#device-num").val();
+    return item;
+  }
+  function toggleEditable(isEdited) {
+    $("#name").prop("readonly", isEdited);
+    $("#addr").prop("readonly", isEdited);
+    $("#opening-hour").prop("readonly", isEdited);
+    $("#url").prop("readonly", isEdited);
+    $("#phone-num").prop("readonly", isEdited);
+    $("#min-price").prop("readonly", isEdited);
+    $("#max-price").prop("readonly", isEdited);
+    $("#device-num").prop("readonly", isEdited);
+    if(isEdited){
+      $('#save').show();
+      $('#cancel').show();
+    }
+    else{
+      $('#save').hide();
+      $('#cancel').hide();
+    }
   }
 });
 
