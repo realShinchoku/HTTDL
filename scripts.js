@@ -1,4 +1,5 @@
 $(function () {
+  var api = 'getSingle';
   var format = "image/png";
   var map;
   var mapLat = 21.006423;
@@ -60,8 +61,9 @@ $(function () {
 
     if (isPos) {
       const positionFeature = new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.transform([mapLng, mapLat], 'EPSG:4326',     
-        'EPSG:3857')),
+        geometry: new ol.geom.Point(
+          ol.proj.transform([mapLng, mapLat], "EPSG:4326", "EPSG:3857")
+        ),
       });
       positionFeature.setStyle(
         new ol.style.Style({
@@ -86,34 +88,62 @@ $(function () {
       });
     }
 
-    map.on('click', function (evt) {
+    map.on("click", function (evt) {
       var zoom = map.getView().getZoom();
-      var lonlat = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
-      var lon = lonlat[0];
-      var lat = lonlat[1];
-      var myPoint = 'POINT(' + lon + ' ' + lat + ')';
+      var coord = ol.proj.transform(evt.coordinate, "EPSG:3857", "EPSG:4326");
+      var point = "POINT(" + coord[0] + " " + coord[1] + ")";
       var item = {
-        name: 'abc',
-        geom : myPoint
-      }
-      $.ajax({
+        name: "abc",
+        geom: point,
+      };
+
+      callAPI(api,point,'',zoom,item).then((res) => {console.log(res); layer_ic.getSource().changed();});
+    });
+
+    function callAPI(api, point, keyword, distance, item) {
+      return new Promise((resolve, reject) => {
+        $.ajax({
           type: "POST",
           url: "api.php",
-          //dataType: 'json',
-          data: {function: 'add', item: item, distance: zoom},
-          success : function (result, status, error) {
-              console.log(result);
-              layer_ic.getSource().changed();
+          data: {
+            function: api,
+            point: point,
+            keyword: keyword,
+            distance: distance,
+            item: item,
+          },
+          success: function (result) {
+            resolve(result);
           },
           error: function (req, status, error) {
-              alert(req + " " + status + " " + error);
-          }
+            reject(req + " " + status + " " + error);
+          },
+        });
       });
-  });
+    }
   }
-  
-  /* When the user clicks on the button,
-toggle between hiding and showing the dropdown content */
+
+  $('.fe_rt').click(function (e) { 
+    $('.fe_rt').removeClass('selected');
+    $(this).addClass('selected');
+    api = $(this).data('api');
+    if(api === 'add' || api === 'edit')
+      openAside();
+  });
+
+  $('.exit-btn').click(function (e) { 
+    closeAside();
+  });
+
+  function openAside(){
+    $('.exit-btn').show();
+    $('.info_location').show();
+  }
+  function closeAside(){
+    $('#deafault').click();
+    $('.exit-btn').hide();
+    $('.info_location').hide();
+  }
 });
 
 function createJsonObj(result) {

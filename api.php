@@ -26,6 +26,8 @@ if (isset($_POST['function'])) {
         $aResult = delete($paPDO, $paPoint,$distance);
     else if($function == 'isInHN')
         $aResult = isInHN($paPDO, $paPoint);
+    else if($function == 'getByID')
+        $aResult = getByID($paPDO, $_POST['item']);
     echo $aResult;
 
     closeDB($paPDO);
@@ -126,6 +128,15 @@ function delete($pdo, $point, $distance){
     $result = query($pdo, $mySQLStr);
     if ($result) {
         return true;
+    }
+    return false;
+}
+
+function getByID($pdo, $item){
+    $mySQLStr = "SELECT * FROM loc WHERE id = ".$item['id'].";";
+    $result = query($pdo, $mySQLStr);
+    if ($result) {
+        return json_encode($result);;
     }
     return false;
 }

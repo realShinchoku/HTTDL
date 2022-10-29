@@ -181,7 +181,7 @@
     cursor: pointer;
 }
 #map{
-    width: 1080w;
+    width: 100vw;
     height: 100vh;
 }
 /*Remove arrow on input type = number*/
@@ -195,4 +195,8 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
     -moz-appearance: textfield;
+}
+
+.selected {
+    background-color: rgb(200 200 200) !important;
 }
