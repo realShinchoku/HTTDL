@@ -6,10 +6,11 @@ $(function () {
     map,
     mapLat = 21.006423,
     mapLng = 105.841394,
-    mapDefaultZoom = 14;
+    mapDefaultZoom = 14,
+    layer_route;
   const toastSuccess = new bootstrap.Toast(document.getElementById("success"));
   const toastError = new bootstrap.Toast(document.getElementById("error"));
-  const dropdown = new bootstrap.Dropdown(document.getElementById('dropdown'));
+  const dropdown = new bootstrap.Dropdown(document.getElementById("dropdown"));
   toggleReadonly(true);
   navigator.geolocation.getCurrentPosition(
     (pos) => {
@@ -102,6 +103,7 @@ $(function () {
             setItem(res);
             openAside();
           } else closeAside();
+          hideRoute();
         });
       } else {
         callAPI("isInHN", point, "", zoom, item)
@@ -110,6 +112,7 @@ $(function () {
               return callAPI("getSingle", point, "", zoom, item);
             }
             closeAside();
+            hideRoute();
           })
           .then((res) => {
             if (api == "edit" && res) {
@@ -132,6 +135,7 @@ $(function () {
                 toastError.show();
               });
             else closeAside();
+            hideRoute();
           });
       }
       layer_ic.getSource().changed();
@@ -146,6 +150,7 @@ $(function () {
     });
     $("#cancel").click(() => {
       closeAside();
+      hideRoute();
     });
 
     function callAPI(api, point, keyword, distance, item) {
@@ -177,6 +182,33 @@ $(function () {
     $("search_btn").click(() => {
       search();
     });
+
+    function hideRoute(){
+      if (layer_route) 
+      map.removeLayer(layer_route);
+    }
+
+    function showRoute(x1, y1, x2, y2) {
+      if (!isPos)
+        return;
+        hideRoute()
+      layer_route = new ol.layer.Image({
+        className: "route-layer",
+        source: new ol.source.ImageWMS({
+          ratio: 1,
+          url: "http://localhost:8080/geoserver/internetcafe/wms",
+          params: {
+            FORMAT: format,
+            VERSION: "1.1.1",
+            STYLES: "",
+            LAYERS: "internetcafe:route",
+            viewparams:
+              "x1:" + x1 + ";y1:" + y1 + ";x2:" + x2 + ";y2:" + y2 + ";",
+          },
+        }),
+      });
+      map.addLayer(layer_route);
+    }
 
     function search() {
       keyword = $("#search").val();
@@ -222,17 +254,34 @@ $(function () {
                 success: function (result) {
                   item = JSON.parse(result);
                   setItem(item);
-                  map.getView()
+                  showRoute(
+                    mapLng,
+                    mapLat,
+                    parseFloat(item.lng),
+                    parseFloat(item.lat)
+                  );
+                  let zoomPoint;
+                  if(isPos)
+                    zoomPoint = ol.proj.transform(
+                      [(mapLng+ parseFloat(item.lng))/2, (mapLat+ parseFloat(item.lat))/2],
+                      "EPSG:4326",
+                      "EPSG:3857"
+                    )
+                  else
+                    zoomPoint = ol.proj.transform(
+                      [parseFloat(item.lng), parseFloat(item.lat)],
+                      "EPSG:4326",
+                      "EPSG:3857"
+                    )
+                  let zoomLvl = isPos ? 14 : 17;
+                  map
+                    .getView()
                     .fit(
                       new ol.geom.Point(
-                        ol.proj.transform(
-                          [parseFloat(item.lng), parseFloat(item.lat)],
-                          "EPSG:4326",
-                          "EPSG:3857"
-                        )
+                        zoomPoint
                       ),
                       {
-                        maxZoom: 19,
+                        maxZoom: zoomLvl,
                       }
                     );
                   openAside();
@@ -241,7 +290,7 @@ $(function () {
               });
             });
           });
-          dropdown.show()
+          dropdown.show();
         }
       });
     }
@@ -318,41 +367,3 @@ $(function () {
     }
   }
 });
-
-function createJsonObj(result) {
-  return {
-    type: "FeatureCollection",
-    crs: {
-      type: "name",
-      properties: {
-        name: "EPSG:4326",
-      },
-    },
-    features: [
-      {
-        type: "Feature",
-        geometry: result,
-      },
-    ],
-  };
-}
-
-function filterFunction() {
-  var input, filter, ul, li, a, i;
-  input = document.getElementById("myInput");
-  filter = input.value.toUpperCase();
-  div = document.getElementById("myDropdown");
-  a = div.getElementsByTagName("a");
-  for (i = 0; i < a.length; i++) {
-    txtValue = a[i].textContent || a[i].innerText;
-    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-      a[i].style.display = "";
-    } else {
-      a[i].style.display = "none";
-    }
-  }
-}
-
-function toggleDropdown() {
-  document.getElementById("myDropdown").classList.toggle("show");
-}
