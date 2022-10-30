@@ -134,7 +134,9 @@
 .info_name_location{
     font-size: smaller;
 }
-
+.exit-btn{
+    display: none;
+}
 .l_aside{
     content: '';
     width: 307px;
