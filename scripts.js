@@ -5,7 +5,7 @@ $(function () {
   var map;
   var mapLat = 21.006423;
   var mapLng = 105.841394;
-  var mapDefaultZoom = 12;
+  var mapDefaultZoom = 14;
   const toastSuccess = new bootstrap.Toast(document.getElementById('success'))
   const toastError = new bootstrap.Toast(document.getElementById('error'))
   toggleReadonly(true);
@@ -15,12 +15,10 @@ $(function () {
         mapLat = pos.coords.latitude;
         mapLng = pos.coords.longitude;
         initialize_map(true);
-      },
-      () => {
-        initialize_map(false);
       }
     );
   }
+  else initialize_map(false);
 
   function initialize_map(isPos) {
     layerBG = new ol.layer.Tile({
