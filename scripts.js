@@ -8,7 +8,7 @@ $(function () {
   var mapDefaultZoom = 12;
   const toastSuccess = new bootstrap.Toast(document.getElementById('success'))
   const toastError = new bootstrap.Toast(document.getElementById('error'))
-  toggleEditable(true);
+  toggleReadonly(true);
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -114,13 +114,13 @@ $(function () {
         }).then(res => {
           if((api == 'edit' && res)){
             item = res;
-            toggleEditable(false);
+            toggleReadonly(false);
             setItem(res);
             openAside();
           }
           else if (api == 'add' && !res){
             item = {}
-            toggleEditable(false);
+            toggleReadonly(false);
             setItem(item);
             item.geom = point;
             openAside();
@@ -181,9 +181,9 @@ $(function () {
     $(this).addClass("selected");
     api = $(this).data("api");
     if (api === "add" || api === "edit") {
-      toggleEditable(false);
+      toggleReadonly(false);
     }
-    toggleEditable(true);
+    toggleReadonly(true);
   });
 
   $(".exit-btn").click(function (e) {
@@ -200,7 +200,7 @@ $(function () {
     $(".aside").hide();
     item = {};
     setItem(item);
-    toggleEditable(true);
+    toggleReadonly(true);
   }
 
   function setItem(item) {
@@ -225,16 +225,16 @@ $(function () {
     item.device_num = $("#device-num").val();
     return item;
   }
-  function toggleEditable(isEditable) {
-    $("#name").prop("readonly", isEditable);
-    $("#addr").prop("readonly", isEditable);
-    $("#opening-hour").prop("readonly", isEditable);
-    $("#url").prop("readonly", isEditable);
-    $("#phone-num").prop("readonly", isEditable);
-    $("#min-price").prop("readonly", isEditable);
-    $("#max-price").prop("readonly", isEditable);
-    $("#device-num").prop("readonly", isEditable);
-    if(!isEditable){
+  function toggleReadonly(isReadonly) {
+    $("#name").prop("readonly", isReadonly);
+    $("#addr").prop("readonly", isReadonly);
+    $("#opening-hour").prop("readonly", isReadonly);
+    $("#url").prop("readonly", isReadonly);
+    $("#phone-num").prop("readonly", isReadonly);
+    $("#min-price").prop("readonly", isReadonly);
+    $("#max-price").prop("readonly", isReadonly);
+    $("#device-num").prop("readonly", isReadonly);
+    if(!isReadonly){
       $('#save').show();
       $('#cancel').show();
     }
