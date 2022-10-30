@@ -1,24 +1,26 @@
 $(function () {
-  var api = "getSingle";
-  var item = {};
-  var format = "image/png";
-  var map;
-  var mapLat = 21.006423;
-  var mapLng = 105.841394;
-  var mapDefaultZoom = 14;
-  const toastSuccess = new bootstrap.Toast(document.getElementById('success'))
-  const toastError = new bootstrap.Toast(document.getElementById('error'))
+  var api = "getSingle",
+    keyword = "",
+    item = {},
+    format = "image/png",
+    map,
+    mapLat = 21.006423,
+    mapLng = 105.841394,
+    mapDefaultZoom = 14;
+  const toastSuccess = new bootstrap.Toast(document.getElementById("success"));
+  const toastError = new bootstrap.Toast(document.getElementById("error"));
+  const dropdown = new bootstrap.Dropdown(document.getElementById('dropdown'));
   toggleReadonly(true);
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        mapLat = pos.coords.latitude;
-        mapLng = pos.coords.longitude;
-        initialize_map(true);
-      }
-    );
-  }
-  else initialize_map(false);
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      mapLat = pos.coords.latitude;
+      mapLng = pos.coords.longitude;
+      initialize_map(true);
+    },
+    () => {
+      initialize_map(false);
+    }
+  );
 
   function initialize_map(isPos) {
     layerBG = new ol.layer.Tile({
@@ -96,58 +98,55 @@ $(function () {
       var point = "POINT(" + coord[0] + " " + coord[1] + ")";
       if (api == "getSingle") {
         callAPI(api, point, "", zoom, item).then((res) => {
-          if(res){
+          if (res) {
             setItem(res);
             openAside();
-          }
-          else
-          closeAside();
+          } else closeAside();
         });
       } else {
-        callAPI('isInHN', point, "", zoom, item).then(res => {
-          if(res){
-            return callAPI('getSingle', point, "", zoom, item);
-          }
-          closeAside();
-        }).then(res => {
-          if((api == 'edit' && res)){
-            item = res;
-            toggleReadonly(false);
-            setItem(res);
-            openAside();
-          }
-          else if (api == 'add' && !res){
-            item = {}
-            toggleReadonly(false);
-            setItem(item);
-            item.geom = point;
-            openAside();
-          }
-          else if(api == 'delete' && res)
-            callAPI(api, point, "", zoom, res).then(res => {
-              if(res){
-              toastSuccess.show()
-              layer_ic.getSource().changed();
-              }
-              toastError.show();
-            });
-          else
+        callAPI("isInHN", point, "", zoom, item)
+          .then((res) => {
+            if (res) {
+              return callAPI("getSingle", point, "", zoom, item);
+            }
             closeAside();
-        })
+          })
+          .then((res) => {
+            if (api == "edit" && res) {
+              item = res;
+              toggleReadonly(false);
+              setItem(res);
+              openAside();
+            } else if (api == "add" && !res) {
+              item = {};
+              toggleReadonly(false);
+              setItem(item);
+              item.geom = point;
+              openAside();
+            } else if (api == "delete" && res)
+              callAPI(api, point, "", zoom, res).then((res) => {
+                if (res) {
+                  toastSuccess.show();
+                  layer_ic.getSource().changed();
+                }
+                toastError.show();
+              });
+            else closeAside();
+          });
       }
       layer_ic.getSource().changed();
     });
 
-    $('#save').click(function () { 
-        item = getItem();
-        callAPI(api, null, "", 0, item).then((res) => {
-          res ? toastSuccess.show() : toastError.show();
-          layer_ic.getSource().changed();
-        });
+    $("#save").click(function () {
+      item = getItem();
+      callAPI(api, null, "", 0, item).then((res) => {
+        res ? toastSuccess.show() : toastError.show();
+        layer_ic.getSource().changed();
+      });
     });
-    $('#cancel').click(() => {
+    $("#cancel").click(() => {
       closeAside();
-    })
+    });
 
     function callAPI(api, point, keyword, distance, item) {
       return new Promise((resolve, reject) => {
@@ -170,6 +169,82 @@ $(function () {
         });
       });
     }
+
+    $("#search").keyup(() => {
+      search();
+    });
+
+    $("search_btn").click(() => {
+      search();
+    });
+
+    function search() {
+      keyword = $("#search").val();
+      callAPI(
+        "listAll",
+        "POINT(" + mapLng + " " + mapLat + ")",
+        keyword,
+        0,
+        null
+      ).then((res) => {
+        if (res) {
+          let htmlString = "";
+          res.forEach((row) => {
+            htmlString +=
+              `<li class="dropdown-item border-bottom">
+            <div class="row align-items-center item-container" data-id="` +
+              row.id +
+              `">
+              <div class="col-10 row">
+                <p class="col-12 m-auto">` +
+              row.name +
+              `</p>
+                <p class="col-12 m-auto">` +
+              row.addr +
+              `</p>
+              </div>
+              <span class="col-2 p-2">` +
+              row.distance.slice(0, 4) +
+              ` km</span>
+            </div>
+          </li>`;
+            $("#dropdown").html(htmlString);
+
+            $(".dropdown-item").on("click", ".item-container", function (e) {
+              var id = $(this).data("id");
+              $.ajax({
+                type: "POST",
+                url: "api.php",
+                data: {
+                  function: "getByID",
+                  id: id,
+                },
+                success: function (result) {
+                  item = JSON.parse(result);
+                  setItem(item);
+                  map.getView()
+                    .fit(
+                      new ol.geom.Point(
+                        ol.proj.transform(
+                          [parseFloat(item.lng), parseFloat(item.lat)],
+                          "EPSG:4326",
+                          "EPSG:3857"
+                        )
+                      ),
+                      {
+                        maxZoom: 19,
+                      }
+                    );
+                  openAside();
+                  dropdown.hide();
+                },
+              });
+            });
+          });
+          dropdown.show()
+        }
+      });
+    }
   }
 
   $(".fe_rt").click(function (e) {
@@ -177,6 +252,7 @@ $(function () {
     $(".aside").hide();
     $(".fe_rt").removeClass("selected");
     $(this).addClass("selected");
+    $("#search").val("");
     api = $(this).data("api");
     if (api === "add" || api === "edit") {
       toggleReadonly(false);
@@ -196,6 +272,7 @@ $(function () {
     $("#deafault").click();
     $(".exit-btn").hide();
     $(".aside").hide();
+    dropdown.hide();
     item = {};
     setItem(item);
     toggleReadonly(true);
@@ -232,13 +309,12 @@ $(function () {
     $("#min-price").prop("readonly", isReadonly);
     $("#max-price").prop("readonly", isReadonly);
     $("#device-num").prop("readonly", isReadonly);
-    if(!isReadonly){
-      $('#save').show();
-      $('#cancel').show();
-    }
-    else{
-      $('#save').hide();
-      $('#cancel').hide();
+    if (!isReadonly) {
+      $("#save").show();
+      $("#cancel").show();
+    } else {
+      $("#save").hide();
+      $("#cancel").hide();
     }
   }
 });

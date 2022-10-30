@@ -8,9 +8,11 @@ if (isset($_POST['function'])) {
     if(isset($_POST['point']))
         $paPoint = $_POST['point'];
     if(isset($_POST['distance']))
-        $distance = $_POST['distance']*= 0.0005;
+        $distance = $_POST['distance']* 0.0005;
     if(isset($_POST['keyword']))
         $keyword = strtolower($_POST['keyword']);
+    if(isset($_POST['id']))
+        $id = $_POST['id'];
     $function = $_POST['function'];
 
     $aResult = "null";
@@ -27,7 +29,7 @@ if (isset($_POST['function'])) {
     else if($function == 'isInHN')
         $aResult = isInHN($paPDO, $paPoint);
     else if($function == 'getByID')
-        $aResult = getByID($paPDO, $_POST['item']);
+        $aResult = getByID($paPDO, $id);
     echo $aResult;
 
     closeDB($paPDO);
@@ -91,7 +93,7 @@ function getSingle($pdo,$point, $distance)
 
 function listAll($pdo,$point,$keyword){
     global $SRID;
-    $mySQLStr = "select * from loc WHERE lower(name) like '%$keyword%' or lower(addr like) '%$keyword%' order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom);";
+    $mySQLStr = "select *,ST_Distance(ST_GeometryFromText('$point', $SRID), geom) * 100 as distance from loc WHERE lower(name) like '%$keyword%' or lower(addr) like '%$keyword%' order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom);";
     $result = query($pdo, $mySQLStr);
     if ($result != null) {
         return json_encode($result);
@@ -128,11 +130,11 @@ function delete($pdo, $item){
     return false;
 }
 
-function getByID($pdo, $item){
-    $mySQLStr = "SELECT * FROM loc WHERE id = ".$item['id'].";";
+function getByID($pdo, $id){
+    $mySQLStr = "SELECT *,ST_X(ST_Transform (geom, 4326)) AS lng, ST_Y(ST_Transform (geom, 4326)) AS lat FROM loc WHERE id = ".$id.";";
     $result = query($pdo, $mySQLStr);
     if ($result) {
-        return json_encode($result);;
+        return json_encode($result[0]);;
     }
     return false;
 }

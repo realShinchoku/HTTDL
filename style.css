@@ -268,3 +268,16 @@ input:focus{
     background-size: 100% 100%;
     color: white;
 }
+
+/* dropdown */
+.dropdown-menu{
+    width: 15vw;
+    inset: 55px auto auto 8px !important;
+    transform: none !important;
+}
+
+.col-10{
+    text-overflow: ellipsis; 
+    overflow: hidden; 
+    white-space: nowrap;
+}
