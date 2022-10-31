@@ -93,7 +93,7 @@ function getSingle($pdo,$point, $distance)
 
 function listAll($pdo,$point,$keyword){
     global $SRID;
-    $mySQLStr = "select *,ST_Distance(ST_GeometryFromText('$point', $SRID), geom) * 100 as distance from loc WHERE lower(name) like '%$keyword%' or lower(addr) like '%$keyword%' order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom);";
+    $mySQLStr = "select *,ST_Distance(ST_GeometryFromText('$point', $SRID), geom) * 100 as distance from loc WHERE lower(name) like '%$keyword%' or lower(addr) like '%$keyword%' order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom) LIMIT 5;";
     $result = query($pdo, $mySQLStr);
     if ($result != null) {
         return json_encode($result);

@@ -92,7 +92,6 @@ $(function () {
         }),
       });
     }
-
     map.on("click", function (evt) {
       var zoom = map.getView().getZoom();
       var coord = ol.proj.transform(evt.coordinate, "EPSG:3857", "EPSG:4326");
@@ -147,6 +146,7 @@ $(function () {
         res ? toastSuccess.show() : toastError.show();
         layer_ic.getSource().changed();
       });
+      toggleReadonly(true);
     });
     $("#cancel").click(() => {
       closeAside();
