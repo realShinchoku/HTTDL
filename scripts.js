@@ -294,25 +294,26 @@ $(function () {
         }
       });
     }
+    $(".fe_rt").click(function (e) {
+      $(".exit-btn").hide();
+      $(".aside").hide();
+      $(".fe_rt").removeClass("selected");
+      $(this).addClass("selected");
+      $("#search").val("");
+      api = $(this).data("api");
+      if (api === "add" || api === "edit") {
+        toggleReadonly(false);
+      }
+      toggleReadonly(true);
+      hideRoute()
+    });
+
+    $(".exit-btn").click(function (e) {
+      closeAside();
+      hideRoute()
+    });
   }
-
-  $(".fe_rt").click(function (e) {
-    $(".exit-btn").hide();
-    $(".aside").hide();
-    $(".fe_rt").removeClass("selected");
-    $(this).addClass("selected");
-    $("#search").val("");
-    api = $(this).data("api");
-    if (api === "add" || api === "edit") {
-      toggleReadonly(false);
-    }
-    toggleReadonly(true);
-  });
-
-  $(".exit-btn").click(function (e) {
-    closeAside();
-  });
-
+  
   function openAside() {
     $(".exit-btn").show();
     $(".aside").show();
