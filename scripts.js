@@ -106,36 +106,37 @@ $(function () {
         });
       } else {
         callAPI("isInHN", point, "", zoom, item)
-          .then((res) => {
-            if (res) {
-              return callAPI("getSingle", point, "", zoom, item);
-            }
-            closeAside();
-            hideRoute();
-          })
-          .then((res) => {
-            if (api == "edit" && res) {
-              item = res;
-              toggleReadonly(false);
-              setItem(res);
-              openAside();
-            } else if (api == "add" && !res) {
-              item = {};
-              toggleReadonly(false);
-              setItem(item);
-              item.geom = point;
-              openAside();
-            } else if (api == "delete" && res)
-              callAPI(api, point, "", zoom, res).then((res) => {
-                if (res) {
-                  toastSuccess.show();
-                  layer_ic.getSource().changed();
-                }
+        .then((res) => {
+          if (res) {
+            return callAPI("getSingle", point, "", zoom, item);
+          }
+          closeAside();
+          hideRoute();
+        })
+        .then((res) => {
+          if (api == "edit" && res) {
+            item = res;
+            toggleReadonly(false);
+            setItem(res);
+            openAside();
+          } else if (api == "add" && !res) {
+            item = {};
+            toggleReadonly(false);
+            setItem(item);
+            item.geom = point;
+            openAside();
+          } else if (api == "delete" && res)
+            callAPI(api, point, "", zoom, res).then((res) => {
+              if (res) {
+                toastSuccess.show();
+                layer_ic.getSource().changed();
+              }
+              else
                 toastError.show();
-              });
-            else closeAside();
-            hideRoute();
-          });
+            });
+          else closeAside();
+          hideRoute();
+        });
       }
       layer_ic.getSource().changed();
     });
@@ -148,6 +149,7 @@ $(function () {
       });
       toggleReadonly(true);
     });
+
     $("#cancel").click(() => {
       closeAside();
       hideRoute();
