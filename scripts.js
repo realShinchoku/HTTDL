@@ -115,7 +115,7 @@ $(function () {
         })
         .then((res) => {
           if (api == "edit" && res) {
-            item = res;
+            item = res;   
             toggleReadonly(false);
             setItem(res);
             openAside();

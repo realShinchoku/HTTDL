@@ -83,7 +83,7 @@ function isInHN($pdo, $point)
 function getSingle($pdo,$point, $distance)
 {
     global $SRID;
-    $mySQLStr = "select * from loc where st_contains(ST_Buffer(geom, $distance), ST_GeometryFromText('$point', $SRID));";
+    $mySQLStr = "select * from loc where st_contains(ST_Buffer(geom, $distance), ST_GeometryFromText('$point', $SRID)) order by ST_Distance(ST_GeometryFromText('$point', $SRID), geom);";
     $result = query($pdo, $mySQLStr);
     if ($result != null) {
         return json_encode($result[0]);
